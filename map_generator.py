@@ -253,3 +253,82 @@ def _layout_maze(size, rng):
             stack.pop()
 
     return grid
+# ============================================================
+# 5. 맵 종류 연결
+# ============================================================
+
+_LAYOUTS = {
+    "empty": lambda size, rng:
+        _layout_empty(size, rng),
+
+    "sparse": lambda size, rng:
+        _layout_random(
+            size,
+            rng,
+            obstacle_probability=0.10,
+        ),
+
+    "dense": lambda size, rng:
+        _layout_random(
+            size,
+            rng,
+            obstacle_probability=0.30,
+        ),
+
+    "rooms": lambda size, rng:
+        _layout_rooms(size, rng),
+
+    "maze": lambda size, rng:
+        _layout_maze(size, rng),
+}
+
+MAP_TYPES = list(_LAYOUTS.keys())
+# ============================================================
+# 6. MAPF 문제 1개 생성
+# ============================================================
+
+def generate_map(
+    map_type="sparse",
+    size=10,
+    num_agents=3,
+    seed=None,
+):
+    """
+    MAPF 문제 하나를 생성한다.
+
+    반환:
+        grid_map
+        starts_rc
+        goals_rc
+    """
+
+    if map_type not in MAP_TYPES:
+        raise ValueError(
+            f"map_type은 {MAP_TYPES} 중 하나여야 합니다."
+        )
+
+    rng = np.random.default_rng(seed)
+
+    # agent를 놓을 수 있는 맵이 나올 때까지 재시도
+    for _ in range(2000):
+
+        # 1. 선택한 종류의 맵 생성
+        grid_map = _LAYOUTS[map_type](
+            size,
+            rng,
+        )
+
+        # 2. start / goal 배치
+        starts, goals = place_agents(
+            grid_map,
+            num_agents,
+            rng,
+        )
+
+        # 3. 성공했으면 반환
+        if starts is not None:
+            return grid_map, starts, goals
+
+    raise RuntimeError(
+        "연결된 빈 공간이 부족합니다."
+    )

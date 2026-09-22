@@ -197,6 +197,19 @@ class MAPFStepSimulator(MAPFSimulator):
         self._positions = {}
         self._agent_ids = []
         self._t = 0
+        # Logging-only instrumentation (Alpha 2 common-logging work): per-agent
+        # conflict classification for the step that just ran. Populated by
+        # step(), never read by step()/reset() themselves, so it cannot affect
+        # movement/collision behaviour. One of "none"/"wall"/"vertex"/"edge".
+        self._last_conflict_types = {}
+        # Logging-only instrumentation: TRUE event counts for the step that
+        # just ran (as opposed to len(agents tagged "vertex"/"edge"), which
+        # double/triple-counts one event across the agents involved in it).
+        #   vertex event = one contested landing cell (>=2 agents targeted it)
+        #   edge event    = one swapping agent pair
+        # See the counting comments inside step() for why these are exact.
+        self._last_vertex_conflict_count = 0
+        self._last_edge_conflict_count = 0
 
     # ── MAPFSimulator ABC 구현 ──────────────────────────────────────────
 
@@ -206,6 +219,9 @@ class MAPFStepSimulator(MAPFSimulator):
         self._positions = dict(starts)
         self._agent_ids = sorted(self._positions.keys())
         self._t = 0
+        self._last_conflict_types = {}
+        self._last_vertex_conflict_count = 0
+        self._last_edge_conflict_count = 0
         return self._build_obs()
 
     def step(self, actions: dict):
@@ -213,6 +229,7 @@ class MAPFStepSimulator(MAPFSimulator):
 
         # 1) 각 에이전트의 "의도한" 다음 위치 계산 (벽/맵밖이면 제자리)
         intended = {}
+        wall_hit = {}  # logging-only instrumentation, read by nobody in this method
         for agent_id in self._agent_ids:
             row, col = self._positions[agent_id]
             drow, dcol = _STEP_ACTION_DELTA[actions[agent_id]]
@@ -220,10 +237,12 @@ class MAPFStepSimulator(MAPFSimulator):
 
             out_of_bounds = not (0 <= new_row < height and 0 <= new_col < width)
             hits_wall = (not out_of_bounds) and self._map_grid[new_row, new_col] == 1
+            wall_hit[agent_id] = bool(out_of_bounds or hits_wall)
             if out_of_bounds or hits_wall:
                 intended[agent_id] = (row, col)  # 제자리 유지
             else:
                 intended[agent_id] = (new_row, new_col)
+        intended_after_wall = dict(intended)  # logging-only snapshot
 
         # 2) vertex collision: 같은 칸으로 몰리는 에이전트들은 전부 제자리로 되돌림
         from collections import Counter
@@ -232,8 +251,14 @@ class MAPFStepSimulator(MAPFSimulator):
         for agent_id in self._agent_ids:
             if landing_counts[intended[agent_id]] > 1:
                 intended[agent_id] = self._positions[agent_id]
+        intended_after_vertex = dict(intended)  # logging-only snapshot
+        # Logging-only: one vertex-conflict EVENT per contested cell (not per
+        # agent bounced off it) -- landing_counts already groups agents by the
+        # cell they targeted, so counting cells with count > 1 is exact.
+        vertex_conflict_count = sum(1 for count in landing_counts.values() if count > 1)
 
         # 3) edge collision: 서로 자리를 바꾸는 쌍도 전부 제자리로 되돌림
+        edge_conflict_count = 0  # logging-only: one event per swapping pair
         for i, agent_a in enumerate(self._agent_ids):
             for agent_b in self._agent_ids[i + 1:]:
                 a_curr, b_curr = self._positions[agent_a], self._positions[agent_b]
@@ -241,6 +266,26 @@ class MAPFStepSimulator(MAPFSimulator):
                 if a_next == b_curr and b_next == a_curr and a_curr != a_next:
                     intended[agent_a] = a_curr
                     intended[agent_b] = b_curr
+                    edge_conflict_count += 1
+
+        # Logging-only instrumentation: classify why each agent's final position
+        # differs from what it proposed, using the three snapshots above in the
+        # same wall -> vertex -> edge priority as the resolution passes just run.
+        # This only reads already-computed values; it does not change `intended`.
+        conflict_types = {}
+        for agent_id in self._agent_ids:
+            origin = self._positions[agent_id]
+            if wall_hit[agent_id]:
+                conflict_types[agent_id] = "wall"
+            elif intended_after_wall[agent_id] != origin and intended_after_vertex[agent_id] == origin:
+                conflict_types[agent_id] = "vertex"
+            elif intended_after_vertex[agent_id] != origin and intended[agent_id] == origin:
+                conflict_types[agent_id] = "edge"
+            else:
+                conflict_types[agent_id] = "none"
+        self._last_conflict_types = conflict_types
+        self._last_vertex_conflict_count = vertex_conflict_count
+        self._last_edge_conflict_count = edge_conflict_count
 
         self._positions = intended
         self._t += 1

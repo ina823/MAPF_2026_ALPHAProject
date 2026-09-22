@@ -1,0 +1,69 @@
+{
+  "schema": 1,
+  "description": "Checkpoint provenance for Alpha 2. Files here are immutable; add new checkpoints under new names.",
+  "checkpoints": {
+    "cnn_navhint.pt": {
+      "sha256": "eb92f2f7487342d958fd8c6b23dc951cafe36f1109a2293c2e37907313cf3471",
+      "size_bytes": 134962,
+      "source": {
+        "repo": "https://github.com/qwedus/MAPF_2026_AlphaProject",
+        "branch": "analysis",
+        "branch_tip_commit": "89ab86c05bbe28a58531fa369e644686866f8693",
+        "path": "cnn_navhint.pt",
+        "git_blob_sha1": "e3797a553ab13f96e1cfaf423a953a284a655a9c",
+        "local_copy_checked": "Alpha1_legacy/cnn_navhint.pt is byte-identical to this blob"
+      },
+      "model": {
+        "class": "NavHintCNN",
+        "defined_in": "src/il/model_navhint.py",
+        "mode": "cnn",
+        "goal_dim": 2,
+        "hint_mode": "flowdist",
+        "label": "navhint-flowdist",
+        "n_parameters": 32549,
+        "local_grid_shape": [
+          3,
+          5,
+          5
+        ],
+        "num_actions": 5,
+        "state_dict_keys": [
+          "conv.0.weight",
+          "conv.0.bias",
+          "conv.2.weight",
+          "conv.2.bias",
+          "goal_fc.0.weight",
+          "goal_fc.0.bias",
+          "head.0.weight",
+          "head.0.bias",
+          "head.3.weight",
+          "head.3.bias"
+        ]
+      },
+      "training_record": {
+        "best_epoch": 7,
+        "best_val_acc": 0.825497485239449,
+        "command_in_alpha1_docs": "py scripts/train_navhint.py --npz real_v03_fd.npz --hint-mode flowdist --out cnn_navhint.pt --epochs 55",
+        "training_data_migrated": false
+      },
+      "normalization": {
+        "formula": "(goal_dir - goal_mean) / goal_std",
+        "applied_in": "src/il/policy.py::predict (Alpha 1: scripts/eval_cbs_vs_il.py::predict)",
+        "goal_mean": [
+          [
+            -0.04194183275103569,
+            0.015569647774100304
+          ]
+        ],
+        "goal_std": [
+          [
+            6.575143337249756,
+            2.5722343921661377
+          ]
+        ],
+        "note": "stats are in (row, col) order; swapping to (x, y) silently corrupts the input"
+      },
+      "verified_load": "torch 2.14.0+cpu / Python 3.14.6 / numpy 2.5.3 on Alpha1_legacy (reported by user, 2026-09-21); contents inspected here with a torch-free pickle reader"
+    }
+  }
+}

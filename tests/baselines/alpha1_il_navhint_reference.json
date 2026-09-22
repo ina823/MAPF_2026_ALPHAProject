@@ -1,0 +1,258 @@
+{
+  "schema": 1,
+  "purpose": "Observed reference values for the Alpha 1 IL-navhint baseline. Used as SOFT metadata by scripts/smoke_test_il.py (WARN on drift, FAIL only with --strict-baseline). Exact step counts are NOT hard assertions.",
+  "checkpoint": {
+    "file": "checkpoints/cnn_navhint.pt",
+    "sha256": "eb92f2f7487342d958fd8c6b23dc951cafe36f1109a2293c2e37907313cf3471",
+    "model": "NavHintCNN",
+    "goal_dim": 2,
+    "hint_mode": "flowdist"
+  },
+  "scenario": {
+    "file": "scenarios/smoke/scenario_empty_s11_n3.json",
+    "alpha1_origin": "scenarios_dev/scenario_empty_s11_n3.json (origin/main)",
+    "n_agents": 3,
+    "map_shape": [
+      11,
+      11
+    ],
+    "starts_row_col": {
+      "0": [
+        4,
+        3
+      ],
+      "1": [
+        9,
+        2
+      ],
+      "2": [
+        5,
+        5
+      ]
+    },
+    "goals_row_col": {
+      "0": [
+        0,
+        8
+      ],
+      "1": [
+        1,
+        1
+      ],
+      "2": [
+        9,
+        5
+      ]
+    },
+    "max_steps_used": 160
+  },
+  "observed_alpha1": {
+    "steps": 9,
+    "all_at_goal": true,
+    "timed_out": false,
+    "final_positions_equal_goals": true,
+    "source": "run by the user on Alpha1_legacy (branch alpha1-recovery) with torch, 2026-09-21",
+    "environment": "Python 3.14.6, torch 2.14.0+cpu, numpy 2.5.3, Windows"
+  },
+  "numpy_crosscheck": {
+    "source": "torch-free re-implementation of NavHintCNN.forward run by Claude on 2026-09-21 with the unmodified Alpha 1 simulator and nav_hint code; same result as the user's torch run",
+    "steps": 9,
+    "all_at_goal": true,
+    "timed_out": false,
+    "min_top1_top2_logit_margin": 0.717,
+    "makespan_lower_bound_max_bfs_distance": 9,
+    "trajectory": [
+      {
+        "0": [
+          4,
+          3
+        ],
+        "1": [
+          9,
+          2
+        ],
+        "2": [
+          5,
+          5
+        ]
+      },
+      {
+        "0": [
+          3,
+          3
+        ],
+        "1": [
+          8,
+          2
+        ],
+        "2": [
+          6,
+          5
+        ]
+      },
+      {
+        "0": [
+          2,
+          3
+        ],
+        "1": [
+          7,
+          2
+        ],
+        "2": [
+          7,
+          5
+        ]
+      },
+      {
+        "0": [
+          1,
+          3
+        ],
+        "1": [
+          6,
+          2
+        ],
+        "2": [
+          8,
+          5
+        ]
+      },
+      {
+        "0": [
+          0,
+          3
+        ],
+        "1": [
+          5,
+          2
+        ],
+        "2": [
+          9,
+          5
+        ]
+      },
+      {
+        "0": [
+          0,
+          4
+        ],
+        "1": [
+          4,
+          2
+        ],
+        "2": [
+          9,
+          5
+        ]
+      },
+      {
+        "0": [
+          0,
+          5
+        ],
+        "1": [
+          3,
+          2
+        ],
+        "2": [
+          9,
+          5
+        ]
+      },
+      {
+        "0": [
+          0,
+          6
+        ],
+        "1": [
+          2,
+          2
+        ],
+        "2": [
+          9,
+          5
+        ]
+      },
+      {
+        "0": [
+          0,
+          7
+        ],
+        "1": [
+          1,
+          2
+        ],
+        "2": [
+          9,
+          5
+        ]
+      },
+      {
+        "0": [
+          0,
+          8
+        ],
+        "1": [
+          1,
+          1
+        ],
+        "2": [
+          9,
+          5
+        ]
+      }
+    ],
+    "actions": [
+      {
+        "0": 0,
+        "1": 0,
+        "2": 1
+      },
+      {
+        "0": 0,
+        "1": 0,
+        "2": 1
+      },
+      {
+        "0": 0,
+        "1": 0,
+        "2": 1
+      },
+      {
+        "0": 0,
+        "1": 0,
+        "2": 1
+      },
+      {
+        "0": 3,
+        "1": 0,
+        "2": 4
+      },
+      {
+        "0": 3,
+        "1": 0,
+        "2": 4
+      },
+      {
+        "0": 3,
+        "1": 0,
+        "2": 4
+      },
+      {
+        "0": 3,
+        "1": 0,
+        "2": 4
+      },
+      {
+        "0": 3,
+        "1": 2,
+        "2": 4
+      }
+    ]
+  },
+  "notes": [
+    "9 steps equals the makespan lower bound of this scenario (two agents need 9 moves, no agent interaction), so it is expected here but is not a general invariant.",
+    "Minimum logit margin 0.717: the decisions cannot flip from float noise between torch versions."
+  ]
+}

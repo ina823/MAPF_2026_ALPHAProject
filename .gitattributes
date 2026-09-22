@@ -1,0 +1,7 @@
+# Keep line endings stable across Windows/Linux checkouts and never touch binaries.
+* text=auto eol=lf
+
+*.pt   binary
+*.npy  binary
+*.npz  binary
+*.png  binary

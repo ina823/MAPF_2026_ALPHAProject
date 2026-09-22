@@ -1,0 +1,14 @@
+# Alpha 2 requirements (baseline migration phase)
+#
+# The versions in the comments are the ones the Alpha 1 baseline was verified with
+# (Windows, Python 3.14.6, venv outside the repository).
+#
+# CPU torch on Windows:  pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+numpy>=1.26        # verified with 2.5.3
+torch>=2.2         # verified with 2.14.0+cpu (a CPU build is sufficient)
+
+# --- not needed by the baseline; enable when the step that uses them starts ---
+# pyyaml>=6.0      # CBS adapter (Alpha 1 src/cbs_adapter.py imports yaml at import time)
+# matplotlib>=3.8  # figures / videos
+# pytest>=8        # optional: the tests are plain unittest and also run under pytest

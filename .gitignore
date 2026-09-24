@@ -25,4 +25,5 @@ outputs/logs/*
 outputs/csv/*
 outputs/figures/*
 outputs/videos/*
+outputs/failure_analysis/*
 !outputs/*/.gitkeep

@@ -1,0 +1,51 @@
+{
+  "scenario_id": "scen_cycle_ring_n4",
+  "map_id": "cycle_ring_n4",
+  "map_file": "map_cycle_ring_n4.npy",
+  "agents": [
+    {
+      "agent_id": 0,
+      "start": [
+        0,
+        0
+      ],
+      "goal": [
+        2,
+        0
+      ]
+    },
+    {
+      "agent_id": 1,
+      "start": [
+        2,
+        0
+      ],
+      "goal": [
+        2,
+        2
+      ]
+    },
+    {
+      "agent_id": 2,
+      "start": [
+        2,
+        2
+      ],
+      "goal": [
+        0,
+        2
+      ]
+    },
+    {
+      "agent_id": 3,
+      "start": [
+        0,
+        2
+      ],
+      "goal": [
+        0,
+        0
+      ]
+    }
+  ]
+}
